@@ -24,13 +24,13 @@ export async function createCategory(formData: FormData) {
     description,
   })
 
-  revalidatePath("/admin/categories")
+  revalidatePath("/backend/categories")
 }
 
 // DELETE
 export async function deleteCategory(id: string) {
   await db.delete(categories).where(eq(categories.id, id))
-  revalidatePath("/admin/categories")
+  revalidatePath("/backend/categories")
 }
 
 export async function updateCategory(id: string, formData: FormData) {
@@ -43,5 +43,5 @@ export async function updateCategory(id: string, formData: FormData) {
     .set({ name, description, slug })
     .where(eq(categories.id, id))
 
-  revalidatePath("/admin/categories")
+  revalidatePath("/backend/categories")
 }

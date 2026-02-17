@@ -1,6 +1,6 @@
 "use client" // This makes the onClick work!
 
-import { deleteCategory } from "@/app/admin/categories/actions"
+import { deleteCategory } from "@/app/backend/(dashboard)/categories/actions" 
 import { Trash2 } from "lucide-react"
 
 export default function DeleteButton({ id }: { id: string }) {

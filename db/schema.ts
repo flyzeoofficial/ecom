@@ -1,4 +1,4 @@
-import { pgTable, uuid, text, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, uuid, text, timestamp, serial, varchar, pgEnum } from "drizzle-orm/pg-core";
 
 export const categories = pgTable("categories", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -11,4 +11,20 @@ export const categories = pgTable("categories", {
     .defaultNow() // Sets current time on creation
     .notNull()
     .$onUpdate(() => new Date()), // Automatically updates on every save
+});
+
+export const adminRoleEnum = pgEnum("admin_role", ["admin", "staff"]);
+
+export const backendUsers = pgTable("backend_users", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  email: text("email").unique().notNull(),
+  password: text("password").notNull(),
+  role: adminRoleEnum("role").default("staff").notNull(),
+});
+
+export const sellers = pgTable("sellers", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  email: text("email").unique().notNull(),
+  password: text("password").notNull(),
+  shopName: text("shop_name").notNull(),
 });

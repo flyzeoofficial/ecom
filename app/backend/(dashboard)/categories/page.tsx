@@ -1,9 +1,11 @@
 import { db } from "@/db/index"
 import { categories } from "@/db/schema"
-import { createCategory, deleteCategory } from "@/app/admin/categories/actions"
+// 1. Updated path to include (dashboard)
+import { createCategory, deleteCategory } from "@/app/backend/(dashboard)/categories/actions" 
 import { desc } from "drizzle-orm"
-import EditCategoryModal from "@/app/admin/categories/edit-modal" // 1. Import your new modal
-import DeleteButton from "@/app/admin/categories/delete-button"
+// 2. Updated paths for your components
+import EditCategoryModal from "@/app/backend/(dashboard)/categories/edit-modal" 
+import DeleteButton from "@/app/backend/(dashboard)/categories/delete-button"
 
 export default async function CategoriesPage() {
   // READ: Fetch all categories sorted by newest first

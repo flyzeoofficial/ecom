@@ -1,15 +1,16 @@
 "use client"
-import Link from "next/link" // Import Link for fast navigation
-import { usePathname } from "next/navigation" // Import hook to detect current URL
+import Link from "next/link"
+import { usePathname } from "next/navigation"
+import { signOut, useSession } from "next-auth/react" // Import auth hooks
 import { 
   Home, 
-  Layers,    // For Categories
-  Package,   // For Products
-  ShoppingBag, // For Orders
-  ShoppingCart, // For Carts
-  UserCircle,  // For Customers
-  Users,     // For Users
-  Settings,  // For Settings
+  Layers, 
+  Package, 
+  ShoppingBag, 
+  ShoppingCart, 
+  UserCircle, 
+  Users, 
+  Settings, 
   LogOut, 
   User, 
   ChevronsUpDown 
@@ -36,60 +37,71 @@ import {
 } from "@/components/ui/dropdown-menu"
 
 const menuItems = [
-  { title: "Dashboard", url: "/admin/dashboard", icon: Home },
-  { title: "Categories", url: "/admin/categories", icon: Layers },
-  { title: "Products", url: "/admin/products", icon: Package },
-  { title: "Orders", url: "/admin/orders", icon: ShoppingBag },
-  { title: "Carts", url: "/admin/carts", icon: ShoppingCart },
-  { title: "Customers", url: "/admin/customers", icon: UserCircle },
-  { title: "Users", url: "/admin/users", icon: Users },
-  { title: "Settings", url: "/admin/settings", icon: Settings },
+  { title: "Dashboard", url: "/backend/dashboard", icon: Home }, // Changed /admin to /backend
+  { title: "Categories", url: "/backend/categories", icon: Layers },
+  { title: "Products", url: "/backend/products", icon: Package },
+  { title: "Orders", url: "/backend/orders", icon: ShoppingBag },
+  { title: "Carts", url: "/backend/carts", icon: ShoppingCart },
+  { title: "Customers", url: "/backend/customers", icon: UserCircle },
+  { title: "Users", url: "/backend/users", icon: Users },
+  { title: "Settings", url: "/backend/settings", icon: Settings },
 ]
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const pathname = usePathname() // This tells us where we are (e.g., "/admin/products")
-  const { state } = useSidebar() // Detects if sidebar is collapsed or expanded
+  const pathname = usePathname()
+  const { state } = useSidebar()
+  
+  // 1. Fetch the current session
+  const { data: session } = useSession()
+  const user = session?.user
+
+  // 2. Logout Handler
+  const handleLogout = async () => {
+    await signOut({ 
+      callbackUrl: "/backend/login", 
+      redirect: true 
+    }, { 
+      basePath: "/api/auth/backend" // Crucial for your isolation
+    })
+  }
 
   return (
     <Sidebar variant="sidebar" collapsible="icon" {...props}>
-      {/* 1. HEADER: Logo and Company Name */}
+      {/* 1. HEADER */}
       <SidebarHeader className="border-b h-16 flex justify-center">
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" className="hover:bg-transparent">
-              {/* Replace /favicon.ico with your logo path */}
               <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-blue-600 text-white">
                 <img src="/favicon.ico" alt="Logo" className="size-5 invert" />
               </div>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-semibold uppercase tracking-wider">Ecom Store</span>
-                <span className="truncate text-xs text-muted-foreground">Admin Panel</span>
+                <span className="truncate text-xs text-muted-foreground">Backend Panel</span>
               </div>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
 
-      {/* 2. CONTENT: Navigation Menu */}
+      {/* 2. CONTENT */}
       <SidebarContent className="py-4">
         <SidebarMenu>
           {menuItems.map((item) => {
-            // Check if this menu item is the current page
             const isActive = pathname === item.url
-
             return (
               <SidebarMenuItem key={item.title}>
                 <SidebarMenuButton 
                   asChild 
                   tooltip={item.title}
-                  isActive={isActive} // shadcn built-in prop for highlighting
+                  isActive={isActive}
                   className={`transition-all duration-200 ${
                     isActive 
                       ? "bg-blue-50 text-blue-600 font-medium" 
                       : "hover:bg-gray-100"
                   }`}
                 >
-                  <Link href={item.url}> {/* Use Link instead of <a> */}
+                  <Link href={item.url}>
                     <item.icon className={`size-5 ${isActive ? "text-blue-600" : ""}`} />
                     <span>{item.title}</span>
                   </Link>
@@ -100,7 +112,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarContent>
 
-      {/* 3. FOOTER: User Avatar & Menu */}
+      {/* 3. FOOTER: Real User Data & Logout */}
       <SidebarFooter className="border-t p-2">
         <SidebarMenu>
           <SidebarMenuItem>
@@ -108,12 +120,18 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               <DropdownMenuTrigger asChild>
                 <SidebarMenuButton size="lg" className="data-[state=open]:bg-sidebar-accent">
                   <Avatar className="h-8 w-8 rounded-lg">
-                    <AvatarImage src="https://github.com/shadcn.png" />
-                    <AvatarFallback className="rounded-lg">AD</AvatarFallback>
+                    {/* Fallback to user email initial */}
+                    <AvatarFallback className="rounded-lg bg-blue-600 text-white">
+                      {user?.email?.charAt(0).toUpperCase() || "U"}
+                    </AvatarFallback>
                   </Avatar>
                   <div className="grid flex-1 text-left text-sm leading-tight">
-                    <span className="truncate font-semibold">Admin User</span>
-                    <span className="truncate text-xs text-muted-foreground">Last login: 2 mins ago</span>
+                    <span className="truncate font-semibold">
+                      {user?.role ? user.role.toUpperCase() : "User"}
+                    </span>
+                    <span className="truncate text-xs text-muted-foreground">
+                      {user?.email}
+                    </span>
                   </div>
                   <ChevronsUpDown className="ml-auto size-4" />
                 </SidebarMenuButton>
@@ -127,12 +145,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 <DropdownMenuLabel className="p-0 font-normal">
                   <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                     <Avatar className="h-8 w-8 rounded-lg">
-                      <AvatarImage src="https://github.com/shadcn.png" />
-                      <AvatarFallback>AD</AvatarFallback>
+                      <AvatarFallback className="bg-blue-600 text-white">
+                         {user?.email?.charAt(0).toUpperCase()}
+                      </AvatarFallback>
                     </Avatar>
                     <div className="grid flex-1 text-left text-sm leading-tight">
-                      <span className="truncate font-semibold">Admin User</span>
-                      <span className="truncate text-xs">admin@ecom.com</span>
+                      <span className="truncate font-semibold">{user?.role === 'admin' ? 'Administrator' : 'Staff Member'}</span>
+                      <span className="truncate text-xs">{user?.email}</span>
                     </div>
                   </div>
                 </DropdownMenuLabel>
@@ -148,7 +167,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   </DropdownMenuItem>
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem className="text-red-600 focus:bg-red-50 focus:text-red-600">
+                {/* Fixed Logout Button */}
+                <DropdownMenuItem 
+                  className="text-red-600 focus:bg-red-50 focus:text-red-600 cursor-pointer"
+                  onClick={handleLogout}
+                >
                   <LogOut className="mr-2 size-4" />
                   Log out
                 </DropdownMenuItem>

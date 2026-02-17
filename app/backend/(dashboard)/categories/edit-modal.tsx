@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { updateCategory } from "@/app/admin/categories/actions"
+import { updateCategory } from "@/app/backend/(dashboard)/categories/actions" 
 import { Pencil } from "lucide-react"
 
 export default function EditCategoryModal({ category }: { category: any }) {
