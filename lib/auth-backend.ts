@@ -21,9 +21,12 @@ export const { handlers, auth: adminAuth, signIn, signOut } = NextAuth({
       return token;
     },
     async session({ session, token }) {
-      if (session.user) session.user.role = token.role;
-      return session;
-    },
+  if (session.user) {
+    // Cast token.role so TypeScript knows it's the correct string type
+    session.user.role = token.role as "admin" | "staff";
+  }
+  return session;
+},
   },
   providers: [
     Credentials({

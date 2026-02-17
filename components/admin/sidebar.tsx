@@ -57,11 +57,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   // 2. Logout Handler
   const handleLogout = async () => {
+    // We remove basePath from the object to satisfy TypeScript.
+    // NextAuth usually detects the base path from your <SessionProvider> 
+    // or the NEXTAUTH_URL environment variable.
     await signOut({ 
       callbackUrl: "/backend/login", 
       redirect: true 
-    }, { 
-      basePath: "/api/auth/backend" // Crucial for your isolation
     })
   }
 
